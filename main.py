@@ -10,9 +10,11 @@ class TelloController:
         self.tello_drone.connect()
         self.tello_drone.streamon()
         self.stop_controller = Event() # Event to signal thread termination
-        self.thread_keyboard_listener() # Setup keyboard listener thread
+        self.start_keyboard_listener() # Setup keyboard listener thread
+        self.data = pd.DataFrame(columns=['speed_X', 'speed_Y', 'speed_Z','accel_X', 'accel_Y', 'accel_Z', 'roll', 'pitch', 'yaw']) # Initialize DataFrame to store data
+        self.start_data_collection()
 
-    def thread_keyboard_listener(self): # Start a thread for keyboard
+    def start_keyboard_listener(self): # Start a thread for keyboard
         Thread(target=self.keyboard_listener).start()
 
     def keyboard_listener(self):
@@ -40,6 +42,24 @@ class TelloController:
         print('Drone landing, Please Wait...')
         self.tello_drone.land()
         print('Drone landed')
+
+    def start_data_collection(self): # Start a thread for data collection
+        Thread(target=self.collect_data).start()
+
+    def collect_data(self):
+        # Append current row data to the DataFrame
+        new_row = {
+            'speed_X': self.tello_drone.get_speed_x(),
+            'speed_Y': self.tello_drone.get_speed_y(),
+            'speed_Z': self.tello_drone.get_speed_z(),
+            'accel_X': self.tello_drone.get_acceleration_x(),
+            'accel_Y': self.tello_drone.get_acceleration_y(),
+            'accel_Z': self.tello_drone.get_acceleration_z(),
+            'roll': self.tello_drone.get_roll(),
+            'pitch': self.tello_drone.get_pitch(),
+            'yaw': self.tello_drone.get_yaw()
+        }
+        self.data = self.data.append(new_row, ignore_index=True) ## Index to infinity for now. maybe we only need Index[0]?
 
 if __name__ == '__main__':
     tc = TelloController()

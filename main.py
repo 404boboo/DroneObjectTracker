@@ -46,20 +46,21 @@ class TelloController:
     def start_data_collection(self): # Start a thread for data collection
         Thread(target=self.collect_data).start()
 
-    def collect_data(self):
-        # Append current row data to the DataFrame
-        new_row = {
-            'speed_X': self.tello_drone.get_speed_x(),
-            'speed_Y': self.tello_drone.get_speed_y(),
-            'speed_Z': self.tello_drone.get_speed_z(),
-            'accel_X': self.tello_drone.get_acceleration_x(),
-            'accel_Y': self.tello_drone.get_acceleration_y(),
-            'accel_Z': self.tello_drone.get_acceleration_z(),
-            'roll': self.tello_drone.get_roll(),
-            'pitch': self.tello_drone.get_pitch(),
-            'yaw': self.tello_drone.get_yaw()
-        }
-        self.data = self.data.append(new_row, ignore_index=True) ## Index to infinity for now. maybe we only need Index[0]?
+    def collect_data(self): # Append current row data to the DataFrame
+        while not self.stop_controller.is_set(): # Only if drone is flying.
+            new_row = {
+                'speed_X': self.tello_drone.get_speed_x(),
+                'speed_Y': self.tello_drone.get_speed_y(),
+                'speed_Z': self.tello_drone.get_speed_z(),
+                'accel_X': self.tello_drone.get_acceleration_x(),
+                'accel_Y': self.tello_drone.get_acceleration_y(),
+                'accel_Z': self.tello_drone.get_acceleration_z(),
+                'roll': self.tello_drone.get_roll(),
+                'pitch': self.tello_drone.get_pitch(),
+                'yaw': self.tello_drone.get_yaw()
+            }
+            self.data = self.data.append(new_row, ignore_index=True) ## Index to infinity for now. maybe we only need Index[0]?
+            time.sleep(1) ## To be adjusted..
 
 if __name__ == '__main__':
     tc = TelloController()

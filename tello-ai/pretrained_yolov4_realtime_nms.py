@@ -86,7 +86,7 @@ def draw_boxes(frame, boxes, class_ids, confidences):
 webcam_video_stream = cv2.VideoCapture(0)
 
 # Load YOLO model
-yolo_model = cv2.dnn.readNetFromDarknet('D:\\python\\dataset\\yolov4.cfg', 'D:\\python\\dataset\\yolov4.weights')
+yolo_model = cv2.dnn.readNetFromDarknet('C:\\Users\\ahmed\\OneDrive\\Desktop\\Projects\\DroneObjectTracker\\tello-ai\\dataset\\yolov4-tiny.cfg', 'C:\\Users\\ahmed\\OneDrive\\Desktop\\Projects\\DroneObjectTracker\\tello-ai\\dataset\\yolov4-tiny.weights')
 output_layer_names = [yolo_model.getLayerNames()[i - 1] for i in yolo_model.getUnconnectedOutLayers()]
 
 # If you have an NVIDIA GPU, use CUDA

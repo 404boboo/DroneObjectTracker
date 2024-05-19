@@ -1,7 +1,16 @@
 import keyboard
 import time
+import cv2 as cv
 from threading import Thread, Event
 from djitellopy import tello
+
+
+######################################################################
+width = 640  # WIDTH OF THE IMAGE
+height = 480  # HEIGHT OF THE IMAGE
+deadZone =100
+#####################################################################
+
 
 class TelloController:
     def __init__(self):
@@ -13,6 +22,7 @@ class TelloController:
         self.start_keyboard_listener() # Setup keyboard listener thread
         self.data = pd.DataFrame(columns=['speed_X', 'speed_Y', 'speed_Z','accel_X', 'accel_Y', 'accel_Z', 'roll', 'pitch', 'yaw']) # Initialize DataFrame to store data
         self.start_data_collection()
+        
 
     def start_keyboard_listener(self): # Start a thread for keyboard
         Thread(target=self.keyboard_listener).start()
@@ -24,7 +34,7 @@ class TelloController:
 
             if key == 't':
                 self.takeoff()
-
+                
             elif key == 'q':
                 self.land()
                 self.stop_controller.set()
@@ -48,6 +58,13 @@ class TelloController:
 
     def collect_data(self): # Append current row data to the DataFrame
         while not self.stop_controller.is_set(): # Only if drone is flying.
+            # Capture frame from drone
+            frame = self.tello_drone.get_frame_read().frame
+
+            # Display frame on live stream
+            cv.imshow("Drone Camera", frame)
+            cv.waitkey(0) # Continuously update the stream
+
             new_row = {
                 'speed_X': self.tello_drone.get_speed_x(),
                 'speed_Y': self.tello_drone.get_speed_y(),
